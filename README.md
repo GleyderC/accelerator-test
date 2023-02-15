@@ -1,5 +1,5 @@
 <h1 align="center">
-    <img alt="GraphQL API"  src=".github/1200px-Node.js_logo.svg.png" width="250px" />
+    <img alt="GraphQL API"  src=".github/GraphQL-Logo-WordmarkStacked-(Rhodamine).svg" width="250px" />
 </h1>
 
 <h4 align="center">
