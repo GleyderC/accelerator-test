@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model categories {
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  status       String     @default("draft") @db.VarChar(255)
+  date_created DateTime?  @default(dbgenerated("CURRENT_DATE")) @db.Timestamp
+  date_updated DateTime?  @default(dbgenerated("CURRENT_DATE")) @db.Timestamp
+  name         String     @unique(map: "categories_name_unique") @db.VarChar(255)
+  products     products[]
+}
+
+model ingredients {
+  id                    String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  status                String                  @default("draft") @db.VarChar(255)
+  date_created          DateTime?               @default(dbgenerated("CURRENT_DATE")) @db.Timestamp
+  date_updated          DateTime?               @default(dbgenerated("CURRENT_DATE")) @db.Timestamp
+  name                  String?                 @db.VarChar(255)
+  price                 Decimal                 @default(0.00) @db.Decimal(8, 4)
+  unit                  Unit
+  ingredients_allergens ingredients_allergens[]
+  products_recipe       products_recipe[]
+}
+
+model orders {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  status       String    @default("draft") @db.VarChar(255)
+  date_created DateTime? @default(dbgenerated("CURRENT_DATE")) @db.Timestamp
+  date_updated DateTime? @default(dbgenerated("CURRENT_DATE")) @db.Timestamp
+  product_id   String    @db.Uuid
+  product      products  @relation(fields: [product_id], references: [id], onUpdate: NoAction)
+  quantity     Int       @default(1)
+}
+
+// model order_detail {
+//   id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+//   status       String    @default("draft") @db.VarChar(255)
+//   date_created DateTime? @db.Timestamp
+//   date_updated DateTime? @db.Timestamp
+//   product_id   String?   @db.Uuid
+//   quantity     Int?      
+//   attended_by  String?   @db.Uuid
+//   orders_id    String?   @db.Uuid
+// }
+
+model products {
+  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  status          String            @default("draft") @db.VarChar(255)
+  date_created    DateTime?         @default(dbgenerated("CURRENT_DATE")) @db.Timestamp
+  date_updated    DateTime?         @default(dbgenerated("CURRENT_DATE")) @db.Timestamp
+  name            String            @db.VarChar(255)
+  category_id     String?           @db.Uuid
+  category        categories?       @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "products_category_id_foreign")
+  products_recipe products_recipe[]
+  price           Decimal           @default(0.0) @db.Decimal(10, 4)
+  order           orders[]
+}
+
+model products_recipe {
+  id             Int          @id @default(autoincrement())
+  products_id    String?      @db.Uuid
+  ingredients_id String?      @db.Uuid
+  ingredients    ingredients? @relation(fields: [ingredients_id], references: [id], onUpdate: NoAction, map: "products_ingredients_ingredients_id_foreign")
+  products       products?    @relation(fields: [products_id], references: [id], onUpdate: NoAction, map: "products_ingredients_products_id_foreign")
+  quantity       Int          @default(0)
+}
+
+model allergens {
+  id                    String                  @id @db.Uuid
+  status                String                  @default("draft") @db.VarChar(255)
+  date_created          DateTime?               @default(dbgenerated("CURRENT_DATE")) @db.Timestamp
+  date_updated          DateTime?               @default(dbgenerated("CURRENT_DATE")) @db.Timestamp
+  name                  String?                 @db.VarChar(255)
+  icon                  String?                 @db.VarChar(255)
+  ingredients_allergens ingredients_allergens[]
+}
+
+model ingredients_allergens {
+  id             Int          @id @default(autoincrement())
+  ingredients_id String?      @db.Uuid
+  allergens_id   String?      @db.Uuid
+  allergens      allergens?   @relation(fields: [allergens_id], references: [id], onUpdate: NoAction, map: "ingredients_allergens_allergens_id_foreign")
+  ingredients    ingredients? @relation(fields: [ingredients_id], references: [id], onUpdate: NoAction, map: "ingredients_allergens_ingredients_id_foreign")
+}
+
+enum Unit {
+  SLICE
+  GRAM
+  PIZZA
+}

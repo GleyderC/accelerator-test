@@ -1,0 +1,91 @@
+scalar DateTime
+scalar Json
+type Ingredient {
+  id: String
+  name: String
+  price: Float
+  unit: Unit
+}
+input IngredientInput {
+  name: String
+}
+
+type Product {
+  id: String
+  name: String
+  status: String
+  category: Category
+  recipe: [ProductRecipe]
+  ingredients: [Ingredient]
+}
+type ProductRecipe {
+  id: String
+  ingredients: Ingredient
+  products: Product
+  quantity: Int
+}
+
+input ProductInput {
+  id: String
+  name: String
+  status: String
+  category_id: String
+}
+type DashboardResponse {
+  sales: Float
+  ingredients_used: Int
+  units_sold: Float
+  ingredients_cost: Float
+  profit: Float
+}
+
+type Dashboard {
+  sales: Float
+  ingredients_used: Int
+  units_sold: Float
+  ingredients_cost: Float
+  profit: Float
+}
+
+type Category {
+  id: String
+  name: String
+  products: [Product]
+}
+input CategoryInput {
+  id: String
+  name: String
+}
+
+type Allergen {
+  id: String
+  name: String
+}
+input AllergenInput {
+  name: String
+}
+
+type Query {
+  ingredients: [Ingredient]
+  categories: [Category]
+  products: [Product]
+  product(id: String!): Product
+  dashboard(
+    product_type: [String]
+    start_date: DateTime
+    end_date: DateTime
+    aggregation: AggregationType
+  ): Json
+}
+
+enum AggregationType {
+  WEEK
+  DAY
+  MONTH
+}
+
+enum Unit {
+  SLICE
+  GRAM
+  PIZZA
+}
